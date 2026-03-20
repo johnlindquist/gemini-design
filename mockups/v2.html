@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatGPT Clone</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Color Palette */
+            --bg: #0a0a0a;
+            --surface: #171717;
+            --elevated: #262626;
+            
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --text-muted: #737373;
+            
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #eab308;
+            
+            --border-subtle: #262626;
+            --border-emphasis: #404040;
+
+            /* Typography & Spacing */
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --base-size: 14px;
+            --line-height: 1.5;
+            
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-6: 24px;
+            --space-8: 32px;
+            
+            --max-width: 768px;
+            --transition: 150ms ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: var(--base-size);
+            line-height: var(--line-height);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        button {
+            font-family: inherit;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+        }
+
+        button:focus-visible, a:focus-visible, textarea:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* Top Bar */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3) var(--space-6);
+            height: 56px;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        .icon-btn:hover {
+            background-color: var(--elevated);
+            color: var(--text-primary);
+        }
+
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-weight: 500;
+            font-size: 15px;
+            color: var(--text-secondary);
+            padding: var(--space-2) var(--space-3);
+            border-radius: 6px;
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        .model-selector:hover {
+            background-color: var(--elevated);
+            color: var(--text-primary);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .avatar-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-primary);
+            border: 1px solid var(--border-emphasis);
+            flex-shrink: 0;
+        }
+
+        /* Main Conversation Area */
+        main {
+            flex-grow: 1;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+            padding-bottom: 180px; /* Space for fixed input area */
+        }
+
+        .message-band {
+            padding: var(--space-6) 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .message-band.assistant {
+            background-color: var(--surface);
+            border-top: 1px solid var(--border-subtle);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .message-inner {
+            width: 100%;
+            max-width: var(--max-width);
+            padding: 0 var(--space-6);
+            display: flex;
+            gap: var(--space-4);
+        }
+
+        .message-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-weight: 600;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .message-icon.ai {
+            background-color: var(--text-primary);
+            color: var(--bg);
+        }
+
+        .message-icon.user {
+            background-color: var(--elevated);
+            border: 1px solid var(--border-emphasis);
+            color: var(--text-primary);
+        }
+
+        .message-content {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        /* Markdown Content Formatting */
+        .message-content p {
+            margin-bottom: var(--space-4);
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: var(--space-3);
+            color: var(--text-primary);
+        }
+
+        .message-content strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .message-content ul {
+            margin-bottom: var(--space-4);
+            padding-left: var(--space-6);
+        }
+
+        .message-content li {
+            margin-bottom: var(--space-2);
+        }
+
+        .message-content li:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content code {
+            font-family: var(--font-mono);
+            font-size: 13px;
+            background-color: var(--elevated);
+            padding: 2px 4px;
+            border-radius: 4px;
+            color: var(--text-secondary);
+        }
+
+        /* Fenced Code Block */
+        .code-block {
+            margin: var(--space-4) 0;
+            background-color: var(--bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-2) var(--space-3);
+            background-color: var(--elevated);
+            border-bottom: 1px solid var(--border-subtle);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .code-copy {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            transition: color var(--transition);
+        }
+
+        .code-copy:hover {
+            color: var(--text-primary);
+        }
+
+        .code-content {
+            padding: var(--space-4);
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .code-content code {
+            background-color: transparent;
+            padding: 0;
+            color: var(--text-primary);
+        }
+
+        .syntax-comment { color: var(--text-muted); }
+        .syntax-keyword { color: var(--accent); }
+        .syntax-string { color: var(--success); }
+        .syntax-func { color: var(--warning); }
+
+        /* Table Formatting */
+        .message-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: var(--space-4) 0;
+            font-size: 14px;
+        }
+
+        .message-content th,
+        .message-content td {
+            padding: var(--space-3) var(--space-4);
+            border: 1px solid var(--border-subtle);
+            text-align: left;
+        }
+
+        .message-content th {
+            background-color: var(--elevated);
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        /* Fixed Input Area */
+        .input-area {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: var(--space-4) var(--space-6) var(--space-4);
+            background: linear-gradient(180deg, transparent 0%, var(--bg) 20%);
+        }
+
+        .input-container {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            background-color: var(--elevated);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: var(--space-3);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+            transition: border-color var(--transition);
+        }
+
+        .input-container:focus-within {
+            border-color: var(--border-emphasis);
+        }
+
+        textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 15px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+            max-height: 200px;
+            padding: var(--space-2) var(--space-1);
+        }
+
+        textarea::placeholder {
+            color: var(--text-muted);
+        }
+
+        .input-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: var(--space-1);
+        }
+
+        .toolbar-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            transition: background-color var(--transition), color var(--transition);
+        }
+
+        .toolbar-btn:hover {
+            background-color: var(--border-subtle);
+            color: var(--text-primary);
+        }
+
+        .send-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--text-primary);
+            color: var(--bg);
+            transition: opacity var(--transition), transform var(--transition);
+        }
+
+        .send-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .send-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .disclaimer {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: var(--space-3);
+            max-width: var(--max-width);
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-emphasis);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button class="icon-btn" aria-label="Toggle sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+        
+        <button class="model-selector">
+            GPT-4
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </button>
+
+        <div class="header-right">
+            <button class="icon-btn" aria-label="New chat">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14"></path>
+                </svg>
+            </button>
+            <div class="avatar-circle">A</div>
+        </div>
+    </header>
+
+    <main>
+        <!-- User Message 1 -->
+        <div class="message-band">
+            <div class="message-inner">
+                <div class="message-icon user">A</div>
+                <div class="message-content">
+                    <p>Can you explain the difference between lists and tuples in Python?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assistant Message 1 -->
+        <div class="message-band assistant">
+            <div class="message-inner">
+                <div class="message-icon ai">AI</div>
+                <div class="message-content">
+                    <h3>Lists vs. Tuples in Python</h3>
+                    <p>Both lists and tuples are used to store collections of data in Python, but they have one fundamental difference: <strong>mutability</strong>.</p>
+                    
+                    <ul>
+                        <li><strong>Lists</strong> are mutable. You can add, remove, or change items after creation. They use square brackets <code>[]</code>.</li>
+                        <li><strong>Tuples</strong> are immutable. Once created, their contents cannot be modified. They use parentheses <code>()</code>.</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <div class="code-header">
+                            <span>python</span>
+                            <button class="code-copy">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                                </svg>
+                                Copy code
+                            </button>
+                        </div>
+                        <div class="code-content">
+<pre><code><span class="syntax-comment"># List example (Mutable)</span>
+my_list = [<span class="syntax-string">1</span>, <span class="syntax-string">2</span>, <span class="syntax-string">3</span>]
+my_list.<span class="syntax-func">append</span>(<span class="syntax-string">4</span>)
+my_list[<span class="syntax-string">0</span>] = <span class="syntax-string">99</span>
+<span class="syntax-func">print</span>(my_list)  <span class="syntax-comment"># Output: [99, 2, 3, 4]</span>
+
+<span class="syntax-comment"># Tuple example (Immutable)</span>
+my_tuple = (<span class="syntax-string">1</span>, <span class="syntax-string">2</span>, <span class="syntax-string">3</span>)
+<span class="syntax-comment"># my_tuple.append(4)  # AttributeError</span>
+<span class="syntax-comment"># my_tuple[0] = 99    # TypeError</span>
+<span class="syntax-func">print</span>(my_tuple) <span class="syntax-comment"># Output: (1, 2, 3)</span></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Message 2 -->
+        <div class="message-band">
+            <div class="message-inner">
+                <div class="message-icon user">A</div>
+                <div class="message-content">
+                    <p>When should I use each one?</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assistant Message 2 -->
+        <div class="message-band assistant">
+            <div class="message-inner">
+                <div class="message-icon ai">AI</div>
+                <div class="message-content">
+                    <p>Choosing between a list and a tuple depends on how you intend to use the data.</p>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>List</th>
+                                <th>Tuple</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Mutability</strong></td>
+                                <td>Mutable (can change)</td>
+                                <td>Immutable (fixed)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Syntax</strong></td>
+                                <td>Square brackets <code>[]</code></td>
+                                <td>Parentheses <code>()</code></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Performance</strong></td>
+                                <td>Slightly slower (dynamic memory)</td>
+                                <td>Faster (fixed memory allocation)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Use Case</strong></td>
+                                <td>Collections of homogenous items that may change over time.</td>
+                                <td>Heterogeneous data or fixed collections (like coordinates).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <p>As a general rule, use a <strong>list</strong> when you expect the collection to grow, shrink, or change. Use a <strong>tuple</strong> when you want to ensure the data remains constant throughout the program's execution, which also provides a slight performance benefit and allows it to be used as a dictionary key.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="input-area">
+        <div class="input-container">
+            <textarea rows="1" placeholder="Message ChatGPT..." aria-label="Message ChatGPT"></textarea>
+            <div class="input-toolbar">
+                <div class="toolbar-actions">
+                    <button class="toolbar-btn" aria-label="Attach file">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" aria-label="Web search">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="2" y1="12" x2="22" y2="12"></line>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                        </svg>
+                    </button>
+                    <button class="toolbar-btn" aria-label="Code interpreter">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="4 17 10 11 4 5"></polyline>
+                            <line x1="12" y1="19" x2="20" y2="19"></line>
+                        </svg>
+                    </button>
+                </div>
+                <button class="send-btn" aria-label="Send message">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="19" x2="12" y2="5"></line>
+                        <polyline points="5 12 12 5 19 12"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="disclaimer">
+            ChatGPT can make mistakes. Check important info.
+        </div>
+    </div>
+
+    <script>
+        const textarea = document.querySelector('textarea');
+        
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        textarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                // Submit logic would go here
+            }
+        });
+    </script>
+</body>
+</html>

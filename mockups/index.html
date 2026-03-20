@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatGPT Clone — Design Variations</title>
+  <style>
+    * { margin: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #0a0a0a; color: #fafafa; }
+    .header { padding: 1.5rem 2rem; border-bottom: 1px solid #262626; }
+    .header h1 { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .header p { color: #737373; font-size: 0.875rem; }
+    .tabs { display: flex; gap: 0.5rem; padding: 1rem 2rem; border-bottom: 1px solid #262626; }
+    .tab {
+      padding: 0.625rem 1.25rem;
+      border: 1px solid #262626;
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      color: #a3a3a3;
+      font-size: 0.875rem;
+      transition: all 150ms ease;
+    }
+    .tab:hover { border-color: #404040; color: #fafafa; }
+    .tab.active { border-color: #3b82f6; color: #fafafa; background: rgba(59, 130, 246, 0.1); }
+    .tab .label { font-weight: 600; }
+    .tab .desc { font-size: 0.75rem; color: #737373; margin-top: 2px; }
+    .tab.active .desc { color: #a3a3a3; }
+    iframe { width: 100%; height: calc(100vh - 140px); border: none; background: #0a0a0a; }
+    .actions { padding: 0.5rem 2rem; display: flex; gap: 0.75rem; align-items: center; }
+    .actions a { color: #3b82f6; text-decoration: none; font-size: 0.8125rem; }
+    .actions a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>ChatGPT Clone — Design Variations</h1>
+    <p>3 layout variations. Click tabs to compare, open in new tab for full experience.</p>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="actions">
+    <a href="#" id="open-link" target="_blank" rel="noopener">Open in new tab ↗</a>
+  </div>
+  <iframe id="preview"></iframe>
+
+  <script>
+    const variations = [
+      { name: 'V1 — Classic Sidebar', desc: 'Traditional ChatGPT layout with persistent sidebar', src: 'v1.html' },
+      { name: 'V2 — Centered Focus', desc: 'No sidebar, full-width centered conversation', src: 'v2.html' },
+      { name: 'V3 — Split Panel', desc: 'Messaging-app style with conversation list + chat', src: 'v3.html' },
+    ];
+    const tabs = document.getElementById('tabs');
+    const preview = document.getElementById('preview');
+    const openLink = document.getElementById('open-link');
+
+    variations.forEach((v, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'tab' + (i === 0 ? ' active' : '');
+      btn.innerHTML = `<div class="label">${v.name}</div><div class="desc">${v.desc}</div>`;
+      btn.onclick = () => {
+        preview.src = v.src;
+        openLink.href = v.src;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+      };
+      tabs.appendChild(btn);
+    });
+
+    preview.src = variations[0].src;
+    openLink.href = variations[0].src;
+  </script>
+</body>
+</html>
