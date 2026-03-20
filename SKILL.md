@@ -73,14 +73,18 @@ Quick reference — pick one dimension per set:
 - **Interaction model**: static / progressive-disclosure / command-palette
 - **Visual tone**: minimal / editorial / bold-graphic / organic
 
-Run sequentially with 2s delay between calls to avoid rate limits:
+**CRITICAL: Run all variations in parallel.** Write all prompt files first, then launch all Gemini processes simultaneously using background jobs:
 
 ```bash
-for v in 1 2 3; do
-  cat /tmp/gemini-prompt-v${v}.txt | gemini -m gemini-3.1-pro-preview -p "..." -y --sandbox
-  sleep 2
+for v in 1 2 3 4 5; do
+  cat /tmp/gemini-prompt-v${v}.txt | gemini -m gemini-3.1-pro-preview \
+    -p "Generate the file exactly as instructed. Output ONLY the file content, no markdown fences." \
+    -y --sandbox &
 done
+wait
 ```
+
+When using Claude Code's Bash tool, launch each variation as a **separate parallel Bash call** in the same message — do NOT run them sequentially. This is the single biggest time savings in the workflow.
 
 ### Step 6: Create Comparison Preview
 
