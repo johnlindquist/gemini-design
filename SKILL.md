@@ -2,7 +2,7 @@
 name: gemini-design
 description: Generate layout and design mockups using Gemini CLI with project design context from .impeccable.md. Creates variations as new routes/pages/components with easy preview and comparison. Use when asked to mock up designs, generate layout variations, or get Gemini design ideas.
 user-invokable: true
-version: "1.0"
+version: "1.1"
 ---
 
 Generate design mockups by combining your project's design language (.impeccable.md) with Gemini CLI's layout generation capabilities. Produces multiple variations with a comparison preview.
